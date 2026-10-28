@@ -101,37 +101,6 @@ services:
     networks:
       - idp
 
-  idp-engine:
-    build:
-      context: ..
-      dockerfile: IDP-Engine/Dockerfile
-    container_name: idp-engine
-    restart: unless-stopped
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      DB_USERNAME: ${MYSQL_USER:-db_user}
-      DB_PASSWORD: ${MYSQL_PASSWORD:-db_password}
-    depends_on:
-      mysql:
-        condition: service_healthy
-      general-mcp-server:
-        condition: service_healthy
-      yahoo-finance-server:
-        condition: service_healthy
-      web-search:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 60s
-    ports:
-      - "8090:8080"
-    networks:
-      - idp
-
   strategy-manager:
     build:
       context: ..
@@ -147,8 +116,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      idp-engine:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
       interval: 10s
@@ -157,6 +124,40 @@ services:
       start_period: 45s
     ports:
       - "8084:8084"
+    networks:
+      - idp
+
+  idp-engine:
+    build:
+      context: ..
+      dockerfile: IDP-Engine/Dockerfile
+    container_name: idp-engine
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DB_USERNAME: ${MYSQL_USER:-db_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-db_password}
+      STRATEGY_MANAGER_URL: http://strategy-manager:8084
+    depends_on:
+      mysql:
+        condition: service_healthy
+      general-mcp-server:
+        condition: service_healthy
+      yahoo-finance-server:
+        condition: service_healthy
+      web-search:
+        condition: service_healthy
+      strategy-manager:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    ports:
+      - "8090:8080"
     networks:
       - idp
 

@@ -34,3 +34,6 @@
 [submodule "IDP-StrategyManager"]
 	path = IDP-StrategyManager
 	url = https://github.com/howardco/IDP-StrategyManager.git
+[submodule "IDP-Strategy-Model"]
+	path = IDP-Strategy-Model
+	url = https://github.com/howardco/IDP-Strategy-Model.git

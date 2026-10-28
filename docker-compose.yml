@@ -23,8 +23,7 @@ services:
 
   general-mcp-server:
     build:
-      context: .
-      dockerfile: IDP-GeneralMCPServer/Dockerfile
+      context: ./IDP-GeneralMCPServer
     container_name: idp-general-mcp-server
     restart: unless-stopped
     environment:
@@ -135,7 +134,8 @@ services:
 
   strategy-manager:
     build:
-      context: ./IDP-StrategyManager
+      context: .
+      dockerfile: IDP-StrategyManager/Dockerfile
     container_name: idp-strategy-manager
     restart: unless-stopped
     environment:

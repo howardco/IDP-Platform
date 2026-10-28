@@ -24,6 +24,7 @@ Three product tiers (per IDP-Website requirements): (1) curated stock recommenda
 | **IDP-Centralised-Logging** | Docker Compose stack: OpenSearch + Logstash + OpenSearch Dashboards (ELK-style), for local log aggregation/observability. | Docker Compose |
 | **IDP-Tools** | Infra/ops grab-bag: `Docker/ELK`, `Docker/mysql` (schema + views), `Docker/jenkins`, and `Docker/superset2` (Superset reporting setup, replacing the earlier vendored `Docker/superset` checkout). | Docker Compose, SQL |
 | **IDP-StrategyManager** | Strategy/agent authoring and execution control plane. CRUD UI for strategy/agent definitions (byte-for-byte compatible with IDP-Engine's shapes), triggers executions on IDP-Engine via REST, deep-links to Superset for reporting. Runs on :8084. | Spring Boot 4, WebFlux, R2DBC (MySQL), React/TS |
+| **IDP-Strategy-Model** | Shared library holding the canonical `StrategyDefinition`/`AgentDefinition` shapes, consumed as a Maven dependency by both IDP-Engine and IDP-StrategyManager so the two don't maintain hand-synced copies of the same types. No runtime service, no port. | Plain Java library (no Spring Boot parent) |
 
 ## Cross-Service Topology (from IDP-Engine's README)
 
@@ -44,13 +45,22 @@ This is a homelab-hosted program: some infra runs on a local network (`192.168.3
 ## Containerized Deploy
 
 This directory (`~/CODE/IDP`) is itself the **IDP-Platform** repo — a top-level
-git repo holding the 12 subprojects above as git submodules, plus a single
+git repo holding the 13 subprojects above as git submodules, plus a single
 `docker-compose.yml` that brings up the full runtime stack (MySQL, the 3 MCP
 servers + yFinance-Proxy, IDP-Engine, IDP-StrategyManager, the ELK stack, and
 Superset) with exactly two required secrets. See `README.md` for the
 quickstart and architecture diagram. IDP-Website and IDP-Frontend are
 submodules here for program completeness but aren't part of the running
 compose stack.
+
+Three internal libraries — IDP-MCP-Enhancer, IDP-StockApiClient, and
+IDP-Strategy-Model — are built once into a single `idp-shared-libs` Docker
+image (`Dockerfile.shared-libs`) rather than being rebuilt from source inside
+every consuming service's own Dockerfile. Run `./build.sh` to build that
+image first and then the rest of the stack's images in one step; the
+individual consumer Dockerfiles (IDP-Engine, IDP-StrategyManager,
+IDP-WebSearch, IDP-YahooFinanceInfoServer) just `COPY --from=idp-shared-libs:latest`
+the pre-built `.m2` repository.
 
 ## Naming Note
 

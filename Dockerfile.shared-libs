@@ -1,0 +1,19 @@
+# Builds every shared internal library once into a local Maven repo, so
+# consuming services' Dockerfiles just copy the pre-built jars in instead of
+# recompiling the library from source on every build. Build this image once
+# (see build.sh), then every consumer Dockerfile does:
+#   COPY --from=idp-shared-libs:latest /root/.m2/repository /root/.m2/repository
+FROM maven:3.9-eclipse-temurin-21 AS shared-libs
+WORKDIR /build
+
+COPY IDP-MCP-Enhancer/pom.xml IDP-MCP-Enhancer/pom.xml
+COPY IDP-MCP-Enhancer/src IDP-MCP-Enhancer/src
+RUN mvn -f IDP-MCP-Enhancer/pom.xml -B install -DskipTests
+
+COPY IDP-StockApiClient/pom.xml IDP-StockApiClient/pom.xml
+COPY IDP-StockApiClient/src IDP-StockApiClient/src
+RUN mvn -f IDP-StockApiClient/pom.xml -B install -DskipTests
+
+COPY IDP-Strategy-Model/pom.xml IDP-Strategy-Model/pom.xml
+COPY IDP-Strategy-Model/src IDP-Strategy-Model/src
+RUN mvn -f IDP-Strategy-Model/pom.xml -B install -DskipTests

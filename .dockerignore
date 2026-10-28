@@ -1,0 +1,10 @@
+.git
+**/.git
+**/.idea
+**/target
+**/node_modules
+**/frontend/build
+**/frontend/node
+**/.DS_Store
+**/secrets.properties
+.env

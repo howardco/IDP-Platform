@@ -1,8 +1,8 @@
 # Secrets Audit — Phase 1
 
-Scope: full git history (`--all`) of all 11 existing IDP repos, scanned with `gitleaks` + `trufflehog`, plus a manual grep sweep for patterns the scanners' rulesets might miss. `IDP-StrategyManager` is not yet a git repo and will be scanned once initialized in Phase 5.
+Scope: full git history (`--all`) of all 14 IDP repos, scanned with `gitleaks` + `trufflehog`, plus a manual grep sweep for patterns the scanners' rulesets might miss.
 
-Date: 2026-10-27.
+Date: 2026-10-27, updated 2026-10-29 (added `IDP-StrategyManager`, `IDP-Strategy-Model`, and `IDP-Platform` once each existed as a git repo).
 
 ## Confirmed findings
 
@@ -41,9 +41,15 @@ Date: 2026-10-27.
 - Inspected: this is the stock development `.env` shipped by the upstream Apache Superset project itself (Apache license header, generic dev defaults like `SUPERSET_SECRET_KEY=TEST_NON_DEV_SECRET`, `DATABASE_PASSWORD=superset`) — not anything specific to this program, and not a real secret.
 - Classification: false positive / vendored boilerplate. No action. (Separately confirms the `Docker/superset` → `Docker/superset2` path rename already noted as a doc fix in the program `CLAUDE.md`.)
 
+## Reviewed and classified as no action needed (added 2026-10-29)
+
+### IDP-Platform — JWT-looking string in `docs/SECRETS-AUDIT.md` (this file)
+- gitleaks flagged the same truncated example JWT quoted above in the IDP-Website entry, now also present here because this document quotes it verbatim.
+- Classification: false positive, meta-level — a scan of the audit document finding the string the audit document is itself discussing. No action.
+
 ## Clean repos (no findings of any kind)
 
-IDP-GeneralMCPServer, IDP-YahooFinanceInfoServer, IDP-yFinance-Proxy, IDP-StockApiClient, IDP-MCP-Enhancer, IDP-Centralised-Logging — scanned via gitleaks + trufflehog + manual grep sweep, nothing found.
+IDP-GeneralMCPServer, IDP-YahooFinanceInfoServer, IDP-yFinance-Proxy, IDP-StockApiClient, IDP-MCP-Enhancer, IDP-Centralised-Logging, IDP-StrategyManager, IDP-Strategy-Model — scanned via gitleaks (+ trufflehog/manual grep for the original 6), nothing found.
 
 ## Remediation complete (Phase 1.3 and 1.4)
 
@@ -51,8 +57,10 @@ IDP-GeneralMCPServer, IDP-YahooFinanceInfoServer, IDP-yFinance-Proxy, IDP-StockA
 - [x] Forward-fix (already done) + full history rewrite on `IDP-Engine`'s two properties files (`sk-proj-...` key replaced with `REDACTED-OPENAI-KEY` across all 117 commits), force-pushed. New history tip: `0689066`.
 - [x] Forward-fix (already done) + full history rewrite on `IDP-WebSearch`'s two properties files (Serper key replaced with `REDACTED-SERPER-KEY` across all 12 commits), force-pushed. New history tip: `ef33b33`.
 - [x] Re-ran gitleaks + trufflehog (`--only-verified`) on all three post-rewrite and post-push: no leaks, zero verified secrets, in any of them. Confirmed 2026-10-28.
-- [ ] Scan `IDP-StrategyManager` once git-initialized in Phase 5.
+- [x] Scanned `IDP-StrategyManager`, `IDP-Strategy-Model`, and `IDP-Platform` once each existed as a git repo (gitleaks, `--all` history) — clean except the one expected meta false-positive in `IDP-Platform` noted above. Confirmed 2026-10-29.
 
 Mirror backups of each repo's pre-rewrite state were made before each rewrite and remain in the session scratchpad, in case anything needs to be recovered.
 
 Key rotation (OpenAI, Serper) is being handled separately by the repo owner — out of scope for this audit.
+
+**Phase 1 status: complete.** All 14 repos scanned; all confirmed real-secret findings remediated (history rewritten, force-pushed, re-scanned clean); all other findings reviewed and classified as false positives or deliberate no-action decisions.

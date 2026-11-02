@@ -1,0 +1,122 @@
+@startuml sequence-runtime-view
+title Strategy Execution: Runtime Sequence
+
+skinparam backgroundColor #1e1e1e
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 160
+skinparam shadowing false
+skinparam defaultFontColor #e8e8e8
+skinparam titleFontColor #e8e8e8
+
+skinparam sequence {
+  ArrowColor #8ab4f8
+  ArrowFontColor #e8e8e8
+  LifeLineBorderColor #6b6b6b
+  LifeLineBackgroundColor #1e1e1e
+  ParticipantBorderColor #6b6b6b
+  ParticipantBackgroundColor #2d2d2d
+  ParticipantFontColor #e8e8e8
+  ActorBorderColor #6b6b6b
+  ActorBackgroundColor #2d2d2d
+  ActorFontColor #e8e8e8
+  GroupBorderColor #8ab4f8
+  GroupBackgroundColor #1e1e1e
+  GroupFontColor #1e1e1e
+  GroupHeaderFontColor #1e1e1e
+  DividerBorderColor #6b6b6b
+  DividerBackgroundColor #2d2d2d
+  DividerFontColor #e8e8e8
+}
+skinparam sequenceGroupBodyBackgroundColor #1e1e1e
+skinparam sequenceGroupBackgroundColor #8ab4f8
+skinparam sequenceGroupHeaderFontColor #1e1e1e
+
+skinparam database {
+  BackgroundColor #2d2d2d
+  BorderColor #8ab4f8
+  FontColor #e8e8e8
+}
+skinparam note {
+  BackgroundColor #332b00
+  BorderColor #c9a227
+  FontColor #e8e8e8
+}
+
+actor "Strategy Manager\n(control plane)" as SM
+participant "IDP-Engine\nEngineExecutionController" as API
+participant "IDP-Engine\nStrategyExecutor" as EXEC
+participant "IDP-Engine\nAgentRunner" as AGENT
+participant "MCP Tool Server\n(EnhancedToolCallback)" as MCP
+database "IDP-Engine DB\n(strategy_execution,\nanalyst_response,\ntrade_recommendation,\nanalyst_opinion)" as DB
+database "MCP Server DB\n(mcp_responses)" as MCPDB
+
+== Trigger ==
+
+SM -> API : POST /api/engine/executions?strategyId=...
+API -> EXEC : executeAsync(strategyName)
+
+EXEC -> EXEC : preflightAndStart()
+note right
+  Load StrategyDefinition + AgentDefinitions.
+  Validate every tool reference, param binding,
+  and agent tool allowlist before anything runs.
+end note
+
+EXEC -> DB : save strategy_execution (status = RUNNING)
+EXEC --> API : executionUid
+API --> SM : 202 Accepted { status: RUNNING, executionUid }
+
+== Phase loop (repeats per phase, in declared order) ==
+
+group Tool step
+  EXEC -> EXEC : resolve ${stepId.field} params\n(same phase only)
+  EXEC -> EXEC : run tool in-process\n(deterministic, no LLM)
+  EXEC -> DB : save analyst_response
+end
+
+group Agent step
+  EXEC -> EXEC : build context from named\n**earlier** phases only
+  EXEC -> AGENT : run(agent, systemPrompt, context, executionUid)
+  AGENT -> AGENT : pass A: LLM call with tools attached
+
+  loop tool-call round (bounded by maxToolRounds)
+    AGENT -> MCP : MCP tool call\n(includes strategy_execution_uid as an argument)
+    MCP -> MCP : extract + strip execution uid,\ninvoke real tool
+    MCP -> MCPDB : save mcp_responses row\n(always, success or failure)
+    MCP --> AGENT : tool result
+  end
+
+  AGENT -> AGENT : pass B: structure findings\ninto AnalystResponse (no tools)
+  AGENT --> EXEC : AnalystResponse + token/duration metrics
+  EXEC -> DB : save analyst_response
+
+  alt step is in the strategy's final phase
+    EXEC -> EXEC : repair price if LLM\nself-reported zero/null
+    EXEC -> DB : save trade_recommendation
+  else step is in an earlier phase
+    EXEC -> DB : save analyst_opinion
+  end
+end
+
+== Completion ==
+
+alt all phases succeeded
+  EXEC -> DB : mark strategy_execution COMPLETED
+else any step threw
+  EXEC -> DB : mark strategy_execution FAILED\n(phase, agent, reason)
+  note right: run stops immediately, no retry
+end
+
+SM -> API : GET /api/engine/executions/{uid}\n(polled until terminal status)
+API --> SM : ExecutionStatus
+
+== Evaluation (separate, on demand) ==
+
+SM -> API : GET /api/engine/evaluate-results
+API -> EXEC : evaluate()
+EXEC -> DB : find trade_recommendation rows\npast sellTime, not yet evaluated
+EXEC -> EXEC : compare recorded price vs.\nreal price at sellTime
+EXEC -> DB : save recommendation_result\n(percentage gain/loss)
+API --> SM : evaluation summary
+
+@enduml

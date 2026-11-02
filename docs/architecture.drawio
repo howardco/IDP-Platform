@@ -1,0 +1,196 @@
+<mxfile host="app.diagrams.net" agent="claude-code">
+  <diagram id="idp-architecture" name="IDP Architecture">
+    <mxGraphModel dx="4011" dy="1446" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="2300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1f3a28;strokeColor=#5fd88a;fontColor=#5fd88a;strokeWidth=2;" value="You, the user" vertex="1">
+          <mxGeometry height="60" width="160" x="760" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="L1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#E1D5E7;strokeColor=#9673A6;" value="Layer: Web Frontends" vertex="1">
+          <mxGeometry height="140" width="1500" x="100" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="SM_UI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Strategy Manager UI&#xa;React, :8084" vertex="1">
+          <mxGeometry height="70" width="220" x="180" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ENGINE_UI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="IDP-Engine demo UI&#xa;test.html, Swagger, :8080" vertex="1">
+          <mxGeometry height="70" width="220" x="780" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="SUPERSET_UI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Superset UI&#xa;dashboards, :8088" vertex="1">
+          <mxGeometry height="70" width="220" x="1300" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="L2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#FFE6CC;strokeColor=#D79B00;" value="Layer: Core" vertex="1">
+          <mxGeometry height="140" width="1500" x="100" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="SM" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" value="STRATEGY-MANAGER" vertex="1">
+          <mxGeometry height="70" width="240" x="400" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="ENGINE" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" value="IDP-ENGINE" vertex="1">
+          <mxGeometry height="70" width="240" x="900" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="L3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#D5E8D4;strokeColor=#82B366;" value="Layer: MCP Servers" vertex="1">
+          <mxGeometry height="220" width="1500" x="100" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="ENHANCER" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#F8CECC;strokeColor=#B85450;dashed=1;" value="IDP-MCP-Enhancer — strategy_execution_uid injection + telemetry, applied to every server below" vertex="1">
+          <mxGeometry height="140" width="900" x="160" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="GENERAL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="general-mcp-server&#xa;:8081" vertex="1">
+          <mxGeometry height="70" width="220" x="200" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="YAHOO" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="yahoo-finance-server&#xa;:8082" vertex="1">
+          <mxGeometry height="70" width="220" x="480" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="WEBSEARCH" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="web-search&#xa;:8083" vertex="1">
+          <mxGeometry height="70" width="220" x="760" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="PROXY" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="yfinance-proxy&#xa;:8000" vertex="1">
+          <mxGeometry height="70" width="220" x="1140" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="L4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#FFF2CC;strokeColor=#D6B656;" value="Layer: Persistence" vertex="1">
+          <mxGeometry height="140" width="1500" x="100" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="MYSQL" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;boundedLbl=1;" value="mysql" vertex="1">
+          <mxGeometry height="70" width="160" x="300" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="SUPERSET_DB" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;boundedLbl=1;" value="superset-db" vertex="1">
+          <mxGeometry height="70" width="160" x="900" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="SUPERSET_REDIS" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;boundedLbl=1;" value="superset-redis" vertex="1">
+          <mxGeometry height="70" width="160" x="1120" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="L5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#E1D5E7;strokeColor=#9673A6;" value="Layer: Observability" vertex="1">
+          <mxGeometry height="140" width="1500" x="100" y="890" as="geometry" />
+        </mxCell>
+        <mxCell id="LOGSTASH" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="logstash" vertex="1">
+          <mxGeometry height="70" width="200" x="200" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="OPENSEARCH" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;boundedLbl=1;" value="opensearch" vertex="1">
+          <mxGeometry height="70" width="180" x="480" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="DASHBOARDS" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="opensearch-dashboards" vertex="1">
+          <mxGeometry height="70" width="220" x="740" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="L6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#FFE6CC;strokeColor=#D79B00;" value="Layer: Reporting" vertex="1">
+          <mxGeometry height="140" width="1500" x="100" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="SUPERSET" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" value="superset" vertex="1">
+          <mxGeometry height="70" width="220" x="700" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="L7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#F8CECC;strokeColor=#B85450;" value="Layer: Third-party APIs (over the internet)" vertex="1">
+          <mxGeometry height="140" width="1500" x="100" y="1230" as="geometry" />
+        </mxCell>
+        <mxCell id="OPENAI_API" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="OpenAI API&#xa;gpt-5-mini" vertex="1">
+          <mxGeometry height="70" width="200" x="200" y="1280" as="geometry" />
+        </mxCell>
+        <mxCell id="SERPER_API" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Serper API&#xa;Google search" vertex="1">
+          <mxGeometry height="70" width="200" x="760" y="1280" as="geometry" />
+        </mxCell>
+        <mxCell id="YAHOO_FINANCE_API" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Yahoo Finance&#xa;market data" vertex="1">
+          <mxGeometry height="70" width="200" x="1300" y="1280" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="SM_UI">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="ENGINE_UI">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="SUPERSET_UI">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="SM_UI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" target="SM" value="REST">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="ENGINE_UI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" target="ENGINE" value="REST">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="SUPERSET_UI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" target="SUPERSET" value="REST">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="SM" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;" target="ENGINE" value="execute-strategy, evaluate-results">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="ENGINE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;" target="SM" value="strategies/model, agents/model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="ENGINE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="GENERAL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="ENGINE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="YAHOO">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="ENGINE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="WEBSEARCH">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="YAHOO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="PROXY">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="ENGINE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="MYSQL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="GENERAL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="MYSQL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="YAHOO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="MYSQL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="WEBSEARCH" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="MYSQL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="SM" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="MYSQL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1700" y="310" />
+            </Array>
+            <mxPoint x="2300" y="310" as="sourcePoint" />
+            <mxPoint x="1700" y="860" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="GENERAL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" target="LOGSTASH">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="YAHOO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" target="LOGSTASH">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="WEBSEARCH" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" target="LOGSTASH">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="SM" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" target="LOGSTASH">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="LOGSTASH" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="OPENSEARCH">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="OPENSEARCH" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="DASHBOARDS">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="MYSQL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;" target="SUPERSET" value="build_dashboard.py">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" edge="1" parent="1" source="SM" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;" target="SUPERSET" value="Reporting tab">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" edge="1" parent="1" source="SUPERSET" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="SUPERSET_DB">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e28" edge="1" parent="1" source="SUPERSET" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="SUPERSET_REDIS">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="280" as="sourcePoint" />
+            <mxPoint x="-120" y="1175" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e30" edge="1" parent="1" source="WEBSEARCH" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="SERPER_API">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e31" edge="1" parent="1" source="PROXY" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="YAHOO_FINANCE_API">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

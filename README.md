@@ -3,10 +3,10 @@
 **QuantView** is an agentic AI platform for financial markets: a multi-agent
 orchestration engine that executes declarative, LLM-driven trading
 strategies against live market data, web search, and custom tool servers,
-with full execution telemetry, centralized logging, and BI-grade reporting
-out of the box.
+backed by end-to-end execution telemetry, centralized logging, and
+BI-grade reporting.
 
-This repository is the deployment entry point for the full program. A
+This repository is the deployment entry point for the full stack. A
 single Docker Compose configuration provisions the orchestration engine,
 every MCP tool server, the strategy authoring/control-plane application,
 log aggregation, and reporting, all pre-wired on an internal network and
@@ -347,7 +347,7 @@ Produced separately from execution, on demand, once a recommendation's sell time
 
 ### How it fits together
 
-A strategy definition is authored once and can be executed many times. Each execution produces its own independent trail: one execution record, one step-response record per step run, zero or more recommendation or opinion records depending on which phase produced them, and an independently-owned set of tool-call records for every MCP call made along the way. Recommendations that mature past their sell time can later be evaluated, producing one evaluation result each. Nothing here is mutated in place after the fact. Every stage appends a new record rather than overwriting a prior one, so a strategy's full history, and every execution's full reasoning trail, stays reconstructable after the fact.
+A strategy definition is authored once and can be executed many times. Each execution produces its own independent trail: one execution record, one step-response record per step run, zero or more recommendation or opinion records depending on which phase produced them, and an independently-owned set of tool-call records for every MCP call made along the way. Recommendations that mature past their sell time can later be evaluated, producing one evaluation result each. Nothing here is mutated in place. Every stage appends a new record rather than overwriting a prior one, so a strategy's full history, and every execution's full reasoning trail, remains fully reconstructible.
 
 ## Services
 
@@ -376,10 +376,10 @@ deployer, loaded from a gitignored `.env` file. Every other credential used
 by the stack is a fixed internal value, scoped to a Docker network with no
 external exposure.
 
-The full program has been audited end-to-end for secret exposure across git
-history. Full git history (`--all`), across all 14 repositories in the IDP
-program, was scanned with two independent tools plus a manual pattern
-sweep: [`gitleaks`](https://github.com/gitleaks/gitleaks) for rule-based
+The full program has been audited end-to-end for secret exposure. Complete
+git history (`--all`), across all 14 repositories in the IDP program, was
+scanned with two independent tools plus a manual pattern sweep:
+[`gitleaks`](https://github.com/gitleaks/gitleaks) for rule-based
 secret detection across the complete commit history of every branch, and
 [`trufflehog`](https://github.com/trufflesecurity/trufflehog) for
 credential verification, confirming whether any detected pattern

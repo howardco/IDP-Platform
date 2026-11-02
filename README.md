@@ -26,6 +26,7 @@ requiring exactly two deployer-supplied secrets.
 - [Domain model](#domain-model)
 - [Services](#services)
 - [Security](#security)
+- [License](#license)
 
 ## Highlights
 
@@ -397,3 +398,8 @@ Runtime configuration across every service follows a single pattern:
 externally supplied values are read from environment variables
 (`${VAR_NAME}`), never hardcoded. This audit protocol runs against new
 repositories as they're added to the program, and is re-run on request.
+
+## License
+
+Released under the [MIT License](LICENSE). The software is provided "as
+is," without warranty of any kind; use it at your own risk.

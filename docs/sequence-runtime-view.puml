@@ -46,7 +46,7 @@ actor "Strategy Manager\n(control plane)" as SM
 participant "IDP-Engine\nEngineExecutionController" as API
 participant "IDP-Engine\nStrategyExecutor" as EXEC
 participant "IDP-Engine\nAgentRunner" as AGENT
-participant "MCP Tool Server\n(EnhancedToolCallback)" as MCP
+participant "MCP / IDP Servers" as MCP
 database "IDP-Engine DB\n(strategy_execution,\nanalyst_response,\ntrade_recommendation,\nanalyst_opinion)" as DB
 database "MCP Server DB\n(mcp_responses)" as MCPDB
 
@@ -77,11 +77,12 @@ end
 group Agent step
   EXEC -> EXEC : build context from named\n**earlier** phases only
   EXEC -> AGENT : run(agent, systemPrompt, context, executionUid)
+  AGENT -> AGENT : open executionUid as tracing\nbaggage (never LLM-visible)
   AGENT -> AGENT : pass A: LLM call with tools attached
 
   loop tool-call round (bounded by maxToolRounds)
-    AGENT -> MCP : MCP tool call\n(includes strategy_execution_uid as an argument)
-    MCP -> MCP : extract + strip execution uid,\ninvoke real tool
+    AGENT -> MCP : MCP tools/call\n(execution uid rides as a\nbaggage HTTP header, not a tool argument)
+    MCP -> MCP : read execution uid from\nrequest baggage, then invoke the tool
     MCP -> MCPDB : save mcp_responses row\n(always, success or failure)
     MCP --> AGENT : tool result
   end
@@ -115,8 +116,19 @@ API --> SM : ExecutionStatus
 SM -> API : GET /api/engine/evaluate-results
 API -> EXEC : evaluate()
 EXEC -> DB : find trade_recommendation rows\npast sellTime, not yet evaluated
-EXEC -> EXEC : compare recorded price vs.\nreal price at sellTime
-EXEC -> DB : save recommendation_result\n(percentage gain/loss)
+
+loop each due recommendation
+  note right of EXEC
+    Plain REST call to the same server's ordinary API, not an MCP
+    tools/call: no execution-uid baggage, no EnhancedToolCallback,
+    no mcp_responses row.
+  end note
+  EXEC -> MCP : GET /api/stock/{symbol}/history
+  MCP --> EXEC : price at sellTime
+  EXEC -> EXEC : compare recorded price vs.\nfetched price at sellTime
+  EXEC -> DB : save recommendation_result\n(percentage gain/loss, or zero\nresult if the lookup failed)
+end
+
 API --> SM : evaluation summary
 
 @enduml

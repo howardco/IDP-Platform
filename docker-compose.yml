@@ -231,7 +231,7 @@ services:
       - idp
 
   superset-init:
-    image: apache/superset:4.1.1
+    image: apache/superset:6.1.0
     container_name: idp-superset-init
     depends_on:
       - superset-db
@@ -249,28 +249,32 @@ services:
       ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:-change-me}
       ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL:-admin@example.com}
+      GUEST_TOKEN_JWT_SECRET: ${GUEST_TOKEN_JWT_SECRET:-change-me-to-a-real-random-key}
+      SUPERSET_EMBED_ALLOWED_DOMAINS: ${SUPERSET_EMBED_ALLOWED_DOMAINS:-http://localhost:8084}
     user: root
     entrypoint: /bin/bash
     command: >
       -c "
       apt-get update -qq &&
       apt-get install -y -qq pkg-config default-libmysqlclient-dev build-essential &&
-      pip install --no-cache-dir pymysql mysqlclient &&
+      uv pip install --python /app/.venv/bin/python3 pymysql mysqlclient &&
       superset db upgrade &&
       superset fab create-admin --username $$ADMIN_USERNAME --password $$ADMIN_PASSWORD --firstname Admin --lastname User --email $$ADMIN_EMAIL || true &&
       superset init
       "
     volumes:
+      - ../IDP-Tools/Docker/superset2/superset_config.py:/app/pythonpath/superset_config.py:ro
       - superset-home:/app/superset_home
     networks:
       - idp
 
   superset:
-    image: apache/superset:4.1.1
+    image: apache/superset:6.1.0
     container_name: idp-superset
     restart: unless-stopped
     depends_on:
-      - superset-init
+      superset-init:
+        condition: service_completed_successfully
     environment:
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-gQPKOxsV18ZMLvbLjDDTkr+qBamXExgjScMD8bPII9YbfbT9B0YynQME}
       DATABASE_DIALECT: postgresql
@@ -281,9 +285,12 @@ services:
       DATABASE_PASSWORD: ${SUPERSET_METADATA_DB_PASSWORD:-change-me}
       REDIS_HOST: superset-redis
       REDIS_PORT: "6379"
+      GUEST_TOKEN_JWT_SECRET: ${GUEST_TOKEN_JWT_SECRET:-change-me-to-a-real-random-key}
+      SUPERSET_EMBED_ALLOWED_DOMAINS: ${SUPERSET_EMBED_ALLOWED_DOMAINS:-http://localhost:8084}
     ports:
       - "8088:8088"
     volumes:
+      - ../IDP-Tools/Docker/superset2/superset_config.py:/app/pythonpath/superset_config.py:ro
       - superset-home:/app/superset_home
     user: root
     entrypoint: /bin/bash
@@ -291,7 +298,7 @@ services:
       -c "
       apt-get update -qq &&
       apt-get install -y -qq pkg-config default-libmysqlclient-dev build-essential &&
-      pip install --no-cache-dir pymysql mysqlclient &&
+      uv pip install --python /app/.venv/bin/python3 pymysql mysqlclient &&
       /usr/bin/run-server.sh
       "
     healthcheck:
@@ -300,6 +307,33 @@ services:
       timeout: 10s
       retries: 20
       start_period: 60s
+    networks:
+      - idp
+
+  superset-dashboards:
+    image: python:3.12-slim
+    container_name: idp-superset-dashboards
+    depends_on:
+      superset:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      SUPERSET_BASE_URL: http://superset:8088
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:-change-me}
+      IDP_ENGINE_MYSQL_HOST: mysql
+      IDP_ENGINE_MYSQL_PORT: "3306"
+      IDP_ENGINE_MYSQL_USER: ${MYSQL_USER:-db_user}
+      IDP_ENGINE_MYSQL_PASSWORD: ${MYSQL_PASSWORD:-db_password}
+      IDP_ENGINE_MYSQL_DB: idp_engine
+      SUPERSET_EMBED_ALLOWED_DOMAINS: ${SUPERSET_EMBED_ALLOWED_DOMAINS:-http://localhost:8084}
+    volumes:
+      - ../IDP-Tools/Docker/superset2/build_dashboard.py:/build_dashboard.py:ro
+    # build_dashboard.py is stdlib-only (no pip install needed) and idempotent -
+    # safe to run on every `docker compose up`, including restarts where the
+    # dashboards/embedded config already exist.
+    command: ["python", "-I", "/build_dashboard.py"]
     networks:
       - idp
 

@@ -23,6 +23,7 @@ requiring exactly two deployer-supplied secrets.
   - [Via Claude Code](#via-claude-code)
   - [Manual setup](#manual-setup)
   - [Verification](#verification)
+- [Usage](#usage)
 - [Domain model](#domain-model)
 - [Services](#services)
 - [Security](#security)
@@ -76,6 +77,8 @@ The platform is organized into seven layers.
 1. **Web Frontends.** Three browser-facing UIs: Strategy Manager's React app, Superset's dashboards, and IDP-Engine's own demo/Swagger UI. Each talks over REST to its own backend in the Core layer.
 2. **Core.** `strategy-manager` is the control plane. It owns strategy/agent definitions and triggers/polls/evaluates executions on `idp-engine` purely over REST (`/api/engine/executions`, `/api/engine/evaluate-results`). `idp-engine`'s `strategy_execution` table is the sole system of record; `strategy-manager` stores nothing about execution state itself. `idp-engine` has no local strategy/agent files. It reads them exclusively from `strategy-manager`'s `/api/strategies/model` and `/api/agents/model`, failing fast if `strategy-manager` is unreachable.
 3. **MCP / IDP Servers.** `idp-engine` orchestrates MCP tool calls to the three MCP servers. `IDP-MCP-Enhancer` wraps all three identically, reading `strategy_execution_uid` from request baggage (an HTTP header propagated via OpenTelemetry, never an LLM-visible tool argument or schema field) and persisting request/response telemetry. One of these servers also proxies through `yfinance-proxy` (Python) for market data rather than calling its upstream data source directly. The same server also exposes a plain REST API alongside its MCP tool surface — `idp-engine`'s evaluation path (see [Evaluating outcomes](#evaluating-outcomes-separately)) calls this REST API directly, bypassing the MCP layer and its telemetry/baggage entirely.
+
+   `idp-engine` also owns a small fixed set of its own in-process, non-LLM tools (`ToolRegistry`) for deterministic tool steps, distinct from the MCP tool servers above. Alongside basic quote/news lookups, this includes four **pre-screen** tools — `screenValuationDisparity`, `screenMarginCompression`, `screenCashRunway`, and `screenEarningsSurpriseDrift` — each of which concurrently scans a fixed stock watchlist for a specific quantitative pattern and hands the matches to a later agent step as pre-filtered candidates, so a strategy's one expensive LLM call reviews a handful of flagged symbols instead of reasoning over the whole watchlist itself.
 4. **Persistence.** MySQL is the shared datastore for application data (`strategy-manager`) and cross-service telemetry (every service via IDP-MCP-Enhancer). Superset has its own separate metadata store (`superset-db`, `superset-redis`).
 5. **Observability.** Every service ships logs to Logstash, then OpenSearch, then OpenSearch Dashboards.
 6. **Reporting.** Superset's dashboards are provisioned automatically on every `docker compose up` (the one-shot `superset-dashboards` service runs `build_dashboard.py` against the shared MySQL database once Superset is healthy). `strategy-manager`'s Reporting tab embeds the "Strategy Execution Drilldown" dashboard directly via Superset's guest-token/embedded-SDK flow, with a fallback deep link for when embedding isn't available.
@@ -290,6 +293,75 @@ directly, since every service above has one wired into
 A successful completion via the chat demo confirms `OPENAI_API_KEY` is
 valid; executing a strategy with a web-search step confirms
 `SERPER_API_KEY` is valid.
+
+## Usage
+
+Strategy Manager (`http://localhost:8084`) is the day-to-day UI: author
+strategies and agents, trigger and monitor executions, and jump into
+Superset for reporting. Click any thumbnail below to view it full size.
+
+<table>
+<tr>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Strategies.png" width="260">](docs/IDP-Strategies.png)<br>
+**Strategies**<br>
+Catalog of all defined strategies, each a card showing its description and phase count.
+
+</td>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Strategies-EDIT.png" width="260">](docs/IDP-Strategies-EDIT.png)<br>
+**Strategy editor**<br>
+Visual phase/step canvas — drag agents or raw tool steps onto a phase and wire up context links.
+
+</td>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Agents.png" width="260">](docs/IDP-Agents.png)<br>
+**Agents**<br>
+Catalog of reusable analyst agents, each with its tool allowlist and description.
+
+</td>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Agents-EDIT.png" width="260">](docs/IDP-Agents-EDIT.png)<br>
+**Agent editor**<br>
+Prompt, model override, tool-call round budget, timeout, and MCP tool allowlist for one agent.
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Execution.png" width="260">](docs/IDP-Execution.png)<br>
+**Execution**<br>
+Trigger a strategy run, watch its live status, and browse recent execution history.
+
+</td>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Reporting-1.png" width="260">](docs/IDP-Reporting-1.png)<br>
+**Reporting — executions & recommendations**<br>
+Embedded Superset dashboard: strategy executions and the trade recommendations they produced.
+
+</td>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Reporting-2.png" width="260">](docs/IDP-Reporting-2.png)<br>
+**Reporting — analyst & MCP telemetry**<br>
+Per-step analyst responses alongside correlated MCP tool-call telemetry for the same execution.
+
+</td>
+<td align="center" width="25%">
+
+[<img src="docs/IDP-Reporting-3.png" width="260">](docs/IDP-Reporting-3.png)<br>
+**Reporting — outcomes & opinions**<br>
+Matured recommendation outcomes (start/end price, % gain) and earlier-phase analyst opinions.
+
+</td>
+</tr>
+</table>
 
 ## Domain model
 

@@ -281,7 +281,7 @@ reachable from inside the Docker network, so their health is checked via
 | general-mcp-server health | `docker compose exec general-mcp-server curl -f http://localhost:8081/actuator/health` |
 | yahoo-finance-server health | `docker compose exec yahoo-finance-server curl -f http://localhost:8082/actuator/health` |
 | web-search health | `docker compose exec web-search curl -f http://localhost:8083/actuator/health` |
-| IDP-Engine chat demo | `http://localhost:8090/test.html` |
+| IDP-Engine chat demo | `http://localhost:8090/Test.html` |
 | Strategy Manager UI | `http://localhost:8084` |
 | Superset | `http://localhost:8088` |
 | OpenSearch Dashboards | `http://localhost:5601` |
